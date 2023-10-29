@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { log } from 'console'
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const tgBot = new Telegraf(process.env.BOT_TOKEN)
 
 export async function POST(req, res) {
 	const { VERCEL_SECRET } = process.env
@@ -22,8 +22,6 @@ export async function POST(req, res) {
 			error: "signature didn't match",
 		})
 	}
-
-	const json = JSON.parse(rawBodyBuffer.toString('utf-8'))
 
 	try {
 		const { type, payload } = await req.json()
@@ -55,7 +53,7 @@ export async function POST(req, res) {
 
 		// 885984456
 
-		await bot.telegram.sendMessage(885984456, formatedMessage)
+		await tgBot.telegram.sendMessage(885984456, formatedMessage)
 
 		return NextResponse.json({ success: 'ok' })
 	} catch (error) {

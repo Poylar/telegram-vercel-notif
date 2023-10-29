@@ -36,7 +36,7 @@ export async function POST(req, res) {
 
 		// 885984456
 
-		await bot.telegram.sendMessage(885984456, formatedMessage)
+		await bot.telegram.sendMessage(-1001795089761, formatedMessage)
 
 		return NextResponse.json({ success: 'ok' })
 	} catch (error) {

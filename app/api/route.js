@@ -3,26 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { log } from 'console'
 
-const tgBot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 export async function POST(req, res) {
-	const { VERCEL_SECRET } = process.env
-
-	if (typeof VERCEL_SECRET != 'string') {
-		throw new Error('No integration secret found')
-	}
-
-	const rawBody = await req.text()
-	const rawBodyBuffer = Buffer.from(rawBody, 'utf-8')
-	const bodySignature = sha1(rawBodyBuffer, VERCEL_SECRET)
-
-	if (bodySignature !== req.headers.get('x-vercel-signature')) {
-		return Response.json({
-			code: 'invalid_signature',
-			error: "signature didn't match",
-		})
-	}
-
 	try {
 		const { type, payload } = await req.json()
 
@@ -53,7 +36,7 @@ export async function POST(req, res) {
 
 		// 885984456
 
-		await tgBot.telegram.sendMessage(885984456, formatedMessage)
+		await bot.telegram.sendMessage(885984456, formatedMessage)
 
 		return NextResponse.json({ success: 'ok' })
 	} catch (error) {
@@ -61,8 +44,4 @@ export async function POST(req, res) {
 
 		return NextResponse.json({ error: error })
 	}
-}
-
-function sha1(data, secret) {
-	return crypto.createHmac('sha1', secret).update(data).digest('hex')
 }

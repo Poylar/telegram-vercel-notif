@@ -27,23 +27,23 @@ export async function POST(req, res) {
 	try {
 		const { type, payload } = await req.json()
 
-		let formatedType = ''
+		let formattedType = ''
 
 		const { name, url, meta } = payload.deployment
 
 		switch (type) {
 			case 'deployment.succeeded':
-				formatedType = '🚀 Deployment success'
+				formattedType = '🚀 Deployment success'
 				break
 			case 'deployment.error':
-				formatedType = '🚨 Deployment error'
+				formattedType = '🚨 Deployment error'
 				break
 			default:
-				formatedType = 'Unknown action'
+				formattedType = 'Unknown action'
 		}
 
 		const formatedMessage = `
-			${formatedType}
+			${formattedType}
 			
 			Project name: ${name}
 			Url: ${url}

@@ -5,24 +5,25 @@ import { log } from 'console'
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-export const runtime = 'nodejs'
-
-async function verifySignature(req) {
-	const payload = await req.text()
-	const signature = crypto
-		.createHmac('sha1', process.env.VERCEL_SECRET)
-		.update(payload)
-		.digest('hex')
-
-	return signature === req.headers.get('x-vercel-signature')
-}
-
 export async function POST(req, res) {
-	const isVerified = await verifySignature(req)
+	const { VERCEL_SECRET } = process.env
 
-	if (!isVerified) {
-		return NextResponse.json({ error: 'Invalid signature2' })
+	if (typeof VERCEL_SECRET != 'string') {
+		throw new Error('No integration secret found')
 	}
+
+	const rawBody = await req.text()
+	const rawBodyBuffer = Buffer.from(rawBody, 'utf-8')
+	const bodySignature = sha1(rawBodyBuffer, VERCEL_SECRET)
+
+	if (bodySignature !== req.headers.get('x-vercel-signature')) {
+		return Response.json({
+			code: 'invalid_signature',
+			error: "signature didn't match",
+		})
+	}
+
+	const json = JSON.parse(rawBodyBuffer.toString('utf-8'))
 
 	try {
 		const { type, payload } = await req.json()
@@ -62,4 +63,8 @@ export async function POST(req, res) {
 
 		return NextResponse.json({ error: error })
 	}
+}
+
+function sha1(data, secret) {
+	return crypto.createHmac('sha1', secret).update(data).digest('hex')
 }
